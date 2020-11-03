@@ -1,0 +1,27 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build-linux:
+    name: Build release for Linux
+    runs-on: ubuntu-16.04
+    steps:
+
+    - name: Setup Go environment
+      uses: actions/setup-go@v2.1.3
+      with:
+        # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+        go-version: 1.15.3
+        # Whether to download only stable versions
+        stable: true # optional, default is true
+        # Used to pull node distributions from go-versions.  Since there's a default, this is typically not supplied by the user.
+        # token: # optional, default is ${{ github.token }}
+
+    - name: Build
+      run: go build -o ./tray_linux_release -ldflags "-s -w" tray.go
