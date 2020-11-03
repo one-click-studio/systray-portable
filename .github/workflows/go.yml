@@ -27,8 +27,8 @@ jobs:
         # The URL for uploading assets to the release
         upload_url: https://uploads.github.com/repos/felixhao28/systray-portable/releases/33386051/assets{?name,label}
         # The path to the asset you want to upload
-        asset_path: https://api.github.com/repos/felixhao28/systray-portable/releases/33386051/assets
+        asset_path: tray_linux_release
         # The name of the asset you want to upload
-        asset_name: tray_darwin_release
+        asset_name: tray_linux_release
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/octet-stream
