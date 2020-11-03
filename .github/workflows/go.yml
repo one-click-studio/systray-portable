@@ -24,4 +24,4 @@ jobs:
         # token: # optional, default is ${{ github.token }}
 
     - name: Build
-      run: go build -o ./tray_linux_release -ldflags "-s -w" tray.go
+      run: go build -o ./tray_linux_release -ldflags "-s -w" .
