@@ -30,6 +30,7 @@ type Item struct {
 	Tooltip string `json:"tooltip"`
 	Enabled bool   `json:"enabled"`
 	Checked bool   `json:"checked"`
+	Hidden  bool   `json:"hidden"`
 }
 
 // Menu has an icon, title and list of items
@@ -118,6 +119,11 @@ func onReady() {
 			} else {
 				menuItem.Disable()
 			}
+			if item.Hidden {
+				menuItem.Hide()
+			} else {
+				menuItem.Show()
+			}
 			menuItem.SetTitle(item.Title)
 			menuItem.SetTooltip(item.Tooltip)
 			// fmt.Println("Done")
@@ -152,6 +158,8 @@ func onReady() {
 			case "update-item-and-menu":
 				updateItem(action)
 				updateMenu(action)
+			case "exit":
+				systray.Quit()
 			}
 		}
 
@@ -174,6 +182,11 @@ func onReady() {
 				menuItem.Enable()
 			} else {
 				menuItem.Disable()
+			}
+			if item.Hidden {
+				menuItem.Hide()
+			} else {
+				menuItem.Show()
 			}
 			items = append(items, menuItem)
 		}
