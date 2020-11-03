@@ -163,13 +163,6 @@ func onReady() {
 			}
 		}
 
-		go func(reader *bufio.Reader) {
-			for {
-				action := readAction(reader)
-				update(action)
-			}
-		}(reader)
-
 		for i := 0; i < len(menu.Items); i++ {
 			item := menu.Items[i]
 			menuItem := systray.AddMenuItem(item.Title, item.Tooltip)
@@ -183,13 +176,23 @@ func onReady() {
 			} else {
 				menuItem.Disable()
 			}
-			if item.Hidden {
-				menuItem.Hide()
-			} else {
-				menuItem.Show()
-			}
 			items = append(items, menuItem)
 		}
+
+		go func(reader *bufio.Reader) {
+			for i := 0; i < len(menu.Items); i++ {
+				item := menu.Items[i]
+				menuItem := items[i]
+				if item.Hidden {
+					menuItem.Hide()
+				}
+			}
+			for {
+				action := readAction(reader)
+				update(action)
+			}
+		}(reader)
+
 		stdoutEnc := json.NewEncoder(os.Stdout)
 		// {"type": "update-item", "item": {"Title":"aa3","Tooltip":"bb","Enabled":true,"Checked":true}, "seqID": 0}
 		for {
