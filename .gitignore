@@ -15,3 +15,11 @@
 src
 bin
 pkg
+tray_darwin
+tray_darwin_release
+tray_linux
+tray_linux_release
+tray_windows.exe
+tray_windows_release.exe
+tray.exe
+tray
