@@ -1,5 +1,8 @@
 # systray-portable
-A portable version of [go systray](https://github.com/getlantern/systray), using stdin/stdout to communicate with other language
+
+A portable version of [go systray](https://github.com/getlantern/systray), using stdin/stdout to communicate with other language.
+
+A fork from https://github.com/zaaack/systray-portable.
 
 
 ## Protocol
@@ -18,12 +21,14 @@ tray binary =>
     "title": "aa",
     "tooltip":"bb",
     "checked": true,
-    "enabled": true
+    "enabled": true,
+    "hidden": false
   }, {
     "title": "aa2",
     "tooltip":"bb",
     "checked": false,
-    "enabled": true
+    "enabled": true,
+    "hidden": false
   }]}
 ```
 => clicked  
@@ -41,6 +46,13 @@ tray binary =>
   "type": "update-item",
   "item": {"title":"aa3","tooltip":"bb","enabled":true,"checked":true},
   "seq_id": 0
+}
+```
+
+<= exit gracefully
+```json
+{
+  "type": "exit"
 }
 ```
 
