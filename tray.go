@@ -119,13 +119,13 @@ func onReady() {
 			} else {
 				menuItem.Disable()
 			}
+			menuItem.SetTitle(item.Title)
+			menuItem.SetTooltip(item.Tooltip)
 			if item.Hidden {
 				menuItem.Hide()
 			} else {
 				menuItem.Show()
 			}
-			menuItem.SetTitle(item.Title)
-			menuItem.SetTooltip(item.Tooltip)
 			// fmt.Println("Done")
 			// fmt.Printf("Read from channel %#v and received %s\n", items[chosen], value.String())
 		}
@@ -135,7 +135,7 @@ func onReady() {
 				menu.Title = m.Title
 				systray.SetTitle(menu.Title)
 			}
-			if menu.Icon != m.Icon {
+			if menu.Icon != m.Icon && m.Icon != "" {
 				menu.Icon = m.Icon
 				icon, err := base64.StdEncoding.DecodeString(menu.Icon)
 				if err != nil {

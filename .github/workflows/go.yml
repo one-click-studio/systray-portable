@@ -19,6 +19,8 @@ jobs:
             binary: tray_linux_release
           - os: windows-latest
             binary: tray_windows_release.exe
+          - os: macos-latest
+            binary: tray_darwin_release
     steps:
     - uses: actions/checkout@master
 
