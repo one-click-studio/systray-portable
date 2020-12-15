@@ -109,6 +109,9 @@ func onReady() {
 			item := action.Item
 			menuItem := items[action.SeqID]
 			menu.Items[action.SeqID] = item
+			if menuItem == nil {
+				return
+			}
 			if item.Checked {
 				menuItem.Check()
 			} else {
@@ -165,25 +168,30 @@ func onReady() {
 
 		for i := 0; i < len(menu.Items); i++ {
 			item := menu.Items[i]
-			menuItem := systray.AddMenuItem(item.Title, item.Tooltip)
-			if item.Checked {
-				menuItem.Check()
+			if item.Title == "<SEPARATOR>" {
+				systray.AddSeparator()
+				items = append(items, nil)
 			} else {
-				menuItem.Uncheck()
+				menuItem := systray.AddMenuItem(item.Title, item.Tooltip)
+				if item.Checked {
+					menuItem.Check()
+				} else {
+					menuItem.Uncheck()
+				}
+				if item.Enabled {
+					menuItem.Enable()
+				} else {
+					menuItem.Disable()
+				}
+				items = append(items, menuItem)
 			}
-			if item.Enabled {
-				menuItem.Enable()
-			} else {
-				menuItem.Disable()
-			}
-			items = append(items, menuItem)
 		}
 
 		go func(reader *bufio.Reader) {
 			for i := 0; i < len(menu.Items); i++ {
 				item := menu.Items[i]
 				menuItem := items[i]
-				if item.Hidden {
+				if menuItem != nil && item.Hidden {
 					menuItem.Hide()
 				}
 			}
@@ -196,9 +204,20 @@ func onReady() {
 		stdoutEnc := json.NewEncoder(os.Stdout)
 		// {"type": "update-item", "item": {"Title":"aa3","Tooltip":"bb","Enabled":true,"Checked":true}, "seqID": 0}
 		for {
-			cases := make([]reflect.SelectCase, len(items))
-			for i, ch := range items {
-				cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ch.ClickedCh)}
+			itemsCnt := 0
+			for _, ch := range items {
+				if ch != nil {
+					itemsCnt++
+				}
+			}
+			cases := make([]reflect.SelectCase, itemsCnt)
+			itemsCnt = 0
+			for _, ch := range items {
+				if ch == nil {
+					continue
+				}
+				cases[itemsCnt] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ch.ClickedCh)}
+				itemsCnt++
 			}
 
 			remaining := len(cases)
