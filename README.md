@@ -11,7 +11,7 @@ Each line is a json string.
 
 tray binary =>  
 => ready  `{"type": "ready"}`  
-<= init menu
+<= init menu (with a separator)
 ```json
 {
   "icon": "<base64 string of image>",
@@ -20,6 +20,12 @@ tray binary =>
   "items":[{
     "title": "aa",
     "tooltip":"bb",
+    "checked": true,
+    "enabled": true,
+    "hidden": false
+  }, {
+    "title": "<SEPARATOR>",
+    "tooltip":"",
     "checked": true,
     "enabled": true,
     "hidden": false
