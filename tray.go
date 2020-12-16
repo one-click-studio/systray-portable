@@ -26,11 +26,14 @@ func onExit() {
 
 // Item represents an item in the menu
 type Item struct {
-	Title   string `json:"title"`
-	Tooltip string `json:"tooltip"`
-	Enabled bool   `json:"enabled"`
-	Checked bool   `json:"checked"`
-	Hidden  bool   `json:"hidden"`
+	Icon       string `json:"icon"`
+	Title      string `json:"title"`
+	Tooltip    string `json:"tooltip"`
+	Enabled    bool   `json:"enabled"`
+	Checked    bool   `json:"checked"`
+	Hidden     bool   `json:"hidden"`
+	Items      []Item `json:"items"`
+	InternalID int    `json:"__id"`
 }
 
 // Menu has an icon, title and list of items
@@ -47,6 +50,14 @@ type Action struct {
 	Item  Item   `json:"item"`
 	Menu  Menu   `json:"menu"`
 	SeqID int    `json:"seq_id"`
+}
+
+// ClickEvent for an click event
+type ClickEvent struct {
+	Type       string `json:"type"`
+	Item       Item   `json:"item"`
+	SeqID      int    `json:"seq_id"`
+	InternalID int    `json:"__id"`
 }
 
 func readLine(reader *bufio.Reader) io.Reader {
@@ -68,6 +79,48 @@ func readAction(reader *bufio.Reader) Action {
 	return action
 }
 
+func addMenuItem(items *[]*systray.MenuItem, rawItems *[]*Item, seqID2InternalID *[]int, internalID2SeqID *map[int]int, item *Item, parent *systray.MenuItem) {
+	if item.Title == "<SEPARATOR>" {
+		systray.AddSeparator()
+		*rawItems = append(*rawItems, item)
+		*items = append(*items, nil)
+	} else {
+		var menuItem *systray.MenuItem
+		if parent == nil {
+			menuItem = systray.AddMenuItem(item.Title, item.Tooltip)
+		} else {
+			menuItem = parent.AddSubMenuItem(item.Title, item.Tooltip)
+		}
+		if item.Checked {
+			menuItem.Check()
+		} else {
+			menuItem.Uncheck()
+		}
+		if item.Enabled {
+			menuItem.Enable()
+		} else {
+			menuItem.Disable()
+		}
+		if len(item.Icon) > 0 {
+			icon, err := base64.StdEncoding.DecodeString(item.Icon)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			} else {
+				menuItem.SetIcon(icon)
+			}
+		}
+		for i := 0; i < len(item.Items); i++ {
+			subitem := item.Items[i]
+			addMenuItem(items, rawItems, seqID2InternalID, internalID2SeqID, &subitem, menuItem)
+		}
+		*rawItems = append(*rawItems, item)
+		*items = append(*items, menuItem)
+	}
+	seqID := len(*items) - 1
+	(*internalID2SeqID)[item.InternalID] = seqID
+	*seqID2InternalID = append(*seqID2InternalID, item.InternalID)
+}
+
 func onReady() {
 	signalChannel := make(chan os.Signal, 2)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
@@ -86,7 +139,10 @@ func onReady() {
 
 	// We can manipulate the systray in other goroutines
 	go func() {
+		rawItems := make([]*Item, 0)
 		items := make([]*systray.MenuItem, 0)
+		seqID2InternalID := make([]int, 0)
+		internalID2SeqID := make(map[int]int)
 		// fmt.Println(items)
 		fmt.Println(`{"type": "ready"}`)
 		reader := bufio.NewReader(os.Stdin)
@@ -107,27 +163,44 @@ func onReady() {
 
 		updateItem := func(action Action) {
 			item := action.Item
-			menuItem := items[action.SeqID]
-			menu.Items[action.SeqID] = item
+			var seqID int
+			if action.SeqID < 0 {
+				seqID = internalID2SeqID[action.Item.InternalID]
+			} else {
+				seqID = action.SeqID
+			}
+			menuItem := items[seqID]
+			rawItems[seqID] = &item
 			if menuItem == nil {
 				return
 			}
-			if item.Checked {
-				menuItem.Check()
-			} else {
-				menuItem.Uncheck()
-			}
-			if item.Enabled {
-				menuItem.Enable()
-			} else {
-				menuItem.Disable()
-			}
-			menuItem.SetTitle(item.Title)
-			menuItem.SetTooltip(item.Tooltip)
 			if item.Hidden {
 				menuItem.Hide()
 			} else {
+				if item.Checked {
+					menuItem.Check()
+				} else {
+					menuItem.Uncheck()
+				}
+				if item.Enabled {
+					menuItem.Enable()
+				} else {
+					menuItem.Disable()
+				}
+				menuItem.SetTitle(item.Title)
+				menuItem.SetTooltip(item.Tooltip)
+				if len(item.Icon) > 0 {
+					icon, err := base64.StdEncoding.DecodeString(item.Icon)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+					}
+					menuItem.SetIcon(icon)
+				}
 				menuItem.Show()
+				for _, child := range item.Items {
+					seqID = internalID2SeqID[child.InternalID]
+					items[seqID].Show()
+				}
 			}
 			// fmt.Println("Done")
 			// fmt.Printf("Read from channel %#v and received %s\n", items[chosen], value.String())
@@ -168,23 +241,7 @@ func onReady() {
 
 		for i := 0; i < len(menu.Items); i++ {
 			item := menu.Items[i]
-			if item.Title == "<SEPARATOR>" {
-				systray.AddSeparator()
-				items = append(items, nil)
-			} else {
-				menuItem := systray.AddMenuItem(item.Title, item.Tooltip)
-				if item.Checked {
-					menuItem.Check()
-				} else {
-					menuItem.Uncheck()
-				}
-				if item.Enabled {
-					menuItem.Enable()
-				} else {
-					menuItem.Disable()
-				}
-				items = append(items, menuItem)
-			}
+			addMenuItem(&items, &rawItems, &seqID2InternalID, &internalID2SeqID, &item, nil)
 		}
 
 		go func(reader *bufio.Reader) {
@@ -211,12 +268,14 @@ func onReady() {
 				}
 			}
 			cases := make([]reflect.SelectCase, itemsCnt)
+			caseCnt2SeqID := make([]int, len(items))
 			itemsCnt = 0
-			for _, ch := range items {
+			for i, ch := range items {
 				if ch == nil {
 					continue
 				}
 				cases[itemsCnt] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(ch.ClickedCh)}
+				caseCnt2SeqID[itemsCnt] = i
 				itemsCnt++
 			}
 
@@ -229,11 +288,13 @@ func onReady() {
 					remaining--
 					continue
 				}
+				seqID := caseCnt2SeqID[chosen]
 				// menuItem := items[chosen]
-				err := stdoutEnc.Encode(Action{
-					Type:  "clicked",
-					Item:  menu.Items[chosen],
-					SeqID: chosen,
+				err := stdoutEnc.Encode(ClickEvent{
+					Type:       "clicked",
+					Item:       *rawItems[seqID],
+					SeqID:      seqID,
+					InternalID: seqID2InternalID[seqID],
 				})
 				if err != nil {
 					fmt.Fprintln(os.Stderr, err)
