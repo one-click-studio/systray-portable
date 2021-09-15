@@ -107,7 +107,11 @@ func addMenuItem(items *[]*systray.MenuItem, rawItems *[]*Item, seqID2InternalID
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			} else {
-				menuItem.SetTemplateIcon(icon, icon)
+				if item.IsTemplateIcon {
+					menuItem.SetTemplateIcon(icon, icon)
+				} else {
+					menuItem.SetIcon(icon)
+				}
 			}
 		}
 		for i := 0; i < len(item.Items); i++ {
@@ -229,11 +233,11 @@ func onReady() {
 				if err != nil {
 					fmt.Fprintln(os.Stderr, err)
 				} else {
-          if m.IsTemplateIcon {
-            systray.SetTemplateIcon(icon, icon)
-          } else {
-            systray.SetIcon(icon)
-          }
+					if m.IsTemplateIcon {
+						systray.SetTemplateIcon(icon, icon)
+					} else {
+						systray.SetIcon(icon)
+					}
 				}
 			}
 			if menu.Tooltip != m.Tooltip {
