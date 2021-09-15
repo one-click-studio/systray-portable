@@ -26,22 +26,24 @@ func onExit() {
 
 // Item represents an item in the menu
 type Item struct {
-	Icon       string `json:"icon"`
-	Title      string `json:"title"`
-	Tooltip    string `json:"tooltip"`
-	Enabled    bool   `json:"enabled"`
-	Checked    bool   `json:"checked"`
-	Hidden     bool   `json:"hidden"`
-	Items      []Item `json:"items"`
-	InternalID int    `json:"__id"`
+	Icon           string `json:"icon"`
+	Title          string `json:"title"`
+	Tooltip        string `json:"tooltip"`
+	Enabled        bool   `json:"enabled"`
+	Checked        bool   `json:"checked"`
+	Hidden         bool   `json:"hidden"`
+	Items          []Item `json:"items"`
+	InternalID     int    `json:"__id"`
+	IsTemplateIcon bool   `json:"isTemplateIcon"`
 }
 
 // Menu has an icon, title and list of items
 type Menu struct {
-	Icon    string `json:"icon"`
-	Title   string `json:"title"`
-	Tooltip string `json:"tooltip"`
-	Items   []Item `json:"items"`
+	Icon           string `json:"icon"`
+	Title          string `json:"title"`
+	Tooltip        string `json:"tooltip"`
+	Items          []Item `json:"items"`
+	IsTemplateIcon bool   `json:"isTemplateIcon"`
 }
 
 // Action for an item?..
@@ -106,7 +108,7 @@ func addMenuItem(items *[]*systray.MenuItem, rawItems *[]*Item, seqID2InternalID
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 			} else {
-				menuItem.SetIcon(icon)
+				menuItem.SetTemplateIcon(icon, icon)
 			}
 		}
 		for i := 0; i < len(item.Items); i++ {
@@ -157,7 +159,11 @@ func onReady() {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		systray.SetIcon(icon)
+		if menu.IsTemplateIcon {
+			systray.SetTemplateIcon(icon, icon)
+		} else {
+			systray.SetIcon(icon)
+		}
 		systray.SetTitle(menu.Title)
 		systray.SetTooltip(menu.Tooltip)
 
@@ -194,7 +200,11 @@ func onReady() {
 					if err != nil {
 						fmt.Fprintln(os.Stderr, err)
 					}
-					menuItem.SetIcon(icon)
+					if item.IsTemplateIcon {
+						menuItem.SetTemplateIcon(icon, icon)
+					} else {
+						menuItem.SetIcon(icon)
+					}
 				}
 				menuItem.Show()
 				for _, child := range item.Items {
@@ -217,7 +227,11 @@ func onReady() {
 				if err != nil {
 					fmt.Fprintln(os.Stderr, err)
 				}
-				systray.SetIcon(icon)
+				if m.IsTemplateIcon {
+					systray.SetTemplateIcon(icon, icon)
+				} else {
+					systray.SetIcon(icon)
+				}
 			}
 			if menu.Tooltip != m.Tooltip {
 				menu.Tooltip = m.Tooltip
