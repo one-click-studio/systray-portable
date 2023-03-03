@@ -14,19 +14,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
-            target-os: linux
-            binary: ./tray_linux_release
-            rawName: tray_linux_release
+          # - os: ubuntu-20.04
+          #   target-os: linux
           - os: windows-latest
             target-os: windows
-            binary: .\tray_windows_release.exe
             ext: .exe
-            rawName: tray_windows_release.exe
-          - os: macos-latest
-            target-os: darwin
-            binary: ./tray_darwin_release
-            rawName: tray_darwin_release
+          # - os: macos-latest
+          #   target-os: darwin
     steps:
     - uses: actions/checkout@master
 
