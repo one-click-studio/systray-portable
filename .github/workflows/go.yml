@@ -43,15 +43,6 @@ jobs:
       if: ${{ matrix.os != 'windows-latest' }}
       run: env GOOS=${{ matrix.target-os }} GOARCH=arm64 go build -o ./tray-${{ matrix.target-os }}-arm64${{ matrix.ext }} -ldflags "-s -w" tray.go
 
-    # - name: Upload a Release Asset
-    #   uses: actions/upload-release-asset@v1.0.2
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: https://uploads.github.com/repos/felixhao28/systray-portable/releases/33386051/assets{?name,label}
-    #     asset_path: ${{ matrix.binary }}
-    #     asset_name: ${{ matrix.rawName }}
-    #     asset_content_type: application/octet-stream
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
