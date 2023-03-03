@@ -15,12 +15,16 @@ jobs:
       matrix:
         include:
           - os: ubuntu-20.04
+            target-os: linux
             binary: ./tray_linux_release
             rawName: tray_linux_release
           - os: windows-latest
+            target-os: windows
             binary: .\tray_windows_release.exe
+            ext: .exe
             rawName: tray_windows_release.exe
           - os: macos-latest
+            target-os: darwin
             binary: ./tray_darwin_release
             rawName: tray_darwin_release
     steps:
@@ -33,8 +37,11 @@ jobs:
     - name: Setup Go environment
       uses: actions/setup-go@v2.1.3
 
-    - name: Build
-      run: go build -o ${{ matrix.binary }} -ldflags "-s -w" tray.go
+    - name: Build x64
+      run: env GOOS=${{ matrix.target-os }} GOARCH=amd64 go build -o ./tray-${{ matrix.target-os }}-adm64${{ matrix.ext }} -ldflags "-s -w" tray.go
+    - name: Build arm64
+      if: ${{ matrix.os != 'windows-latest' }}
+      run: env GOOS=${{ matrix.target-os }} GOARCH=arm64 go build -o ./tray-${{ matrix.target-os }}-arm64${{ matrix.ext }} -ldflags "-s -w" tray.go
 
     # - name: Upload a Release Asset
     #   uses: actions/upload-release-asset@v1.0.2
@@ -48,5 +55,11 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ matrix.rawName }}
-        path: ${{ matrix.binary }}
+        name: tray-${{ matrix.target-os }}-adm64${{ matrix.ext }}
+        path: ./tray-${{ matrix.target-os }}-adm64${{ matrix.ext }}
+    - name: Upload artifact
+      if: ${{ matrix.os != 'windows-latest' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: tray-${{ matrix.target-os }}-arm64${{ matrix.ext }}
+        path: ./tray-${{ matrix.target-os }}-arm64${{ matrix.ext }}
