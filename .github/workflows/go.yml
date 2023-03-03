@@ -34,8 +34,18 @@ jobs:
     - name: Build x64
       run: env GOOS=${{ matrix.target-os }} GOARCH=amd64 go build -o ./tray-${{ matrix.target-os }}-adm64${{ matrix.ext }} -ldflags "-s -w" tray.go
     - name: Build arm64
-      if: ${{ matrix.os != 'windows-latest' }}
+      if: ${{ matrix.os == 'macos-latest' }}
       run: env CGO_ENABLED=1 GOOS=${{ matrix.target-os }} GOARCH=arm64 go build -o ./tray-${{ matrix.target-os }}-arm64${{ matrix.ext }} -ldflags "-s -w" tray.go
+    - name: Build arm64
+      if: ${{ matrix.os == 'ubuntu-20.04' }}
+      run: env \
+        CGO_ENABLED=1 \
+        GOOS=${{ matrix.target-os }} \
+        GOARCH=arm64 \
+        CC=aarch64-linux-gnu-gcc \
+        CC_FOR_TARGET=gcc-aarch64-linux-gnu \
+        go build -o ./tray-${{ matrix.target-os }}-arm64${{ matrix.ext }} -ldflags "-s -w" tray.go
+
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
