@@ -14,13 +14,13 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os: ubuntu-20.04
-          #   target-os: linux
+          - os: ubuntu-20.04
+            target-os: linux
           # - os: windows-latest
           #   target-os: windows
           #   ext: .exe
-          - os: macos-latest
-            target-os: darwin
+          # - os: macos-latest
+          #   target-os: darwin
     steps:
     - uses: actions/checkout@master
 
