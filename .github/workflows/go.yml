@@ -28,7 +28,6 @@ jobs:
       if: ${{ matrix.os == 'ubuntu-20.04' }}
       run: |
         sudo apt-get install libgtk-3-dev libappindicator3-dev gcc-aarch64-linux-gnu
-        sudo apt-get install libgtk-3-dev:arm64
         # appindicator3
         # dbusmenu-glib
         # gtk-3
