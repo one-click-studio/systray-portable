@@ -83,7 +83,7 @@ jobs:
           CGO_ENABLED: 1
           GOOS: darwin
           GOARCH: arm64
-        run: arch -arm64 /bin/bash -c "go build -o ./dist/tray-darwin-arm64 -ldflags \"-s -w\" tray.go"
+        run: SDKROOT=$(xcrun --sdk macosx --show-sdk-path) go build -o ./dist/tray-darwin-arm64 -ldflags "-s -w" tray.go
       - name: Upload macos artifact
         uses: actions/upload-artifact@v3
         with:
