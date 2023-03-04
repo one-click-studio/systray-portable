@@ -132,4 +132,4 @@ jobs:
           prerelease: true
           allowUpdates: true
           removeArtifacts: true
-          artifact: ./artifacts/**/*
+          artifacts: ./artifacts/**/*
