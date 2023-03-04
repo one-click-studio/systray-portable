@@ -130,7 +130,7 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: latest
           prerelease: true
           allowUpdates: true
