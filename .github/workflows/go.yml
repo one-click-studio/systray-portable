@@ -60,3 +60,79 @@ jobs:
         with:
           name: tray_linux
           path: ./dist
+          retention-days: 1
+
+  build_macos:
+    name: Build MacOS Binaries
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Create dist dir
+        run: mkdir dist
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.15
+      - name: Build x64
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: go build -o ./dist/tray-darwin-amd64 -ldflags "-s -w" tray.go
+      - name: Build arm64
+        env:
+          CGO_ENABLED: 1
+          GOOS: darwin
+          GOARCH: arm64
+        run: go build -o ./dist/tray-darwin-arm64 -ldflags "-s -w" tray.go
+      - name: Upload macos artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tray_macos
+          path: ./dist
+          retention-days: 1
+
+  build_windows:
+    name: Build Windows Binaries
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Create dist dir
+        run: mkdir dist
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.15
+      - name: Build x64
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: go build -o ./dist/tray-windows-amd64.exe -ldflags "-s -w" tray.go
+      - name: Upload windows artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tray_windows
+          path: ./dist
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: [build_linux, build_macos, build_windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          tag: latest
+          prerelease: true
+          allowUpdates: true
+          removeArtifacts: true
+          artifact: ./artifacts/**/*
