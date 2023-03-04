@@ -124,12 +124,12 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Create release
-        uses: ncipollo/release-action@v1
+      - name: Upload executables to asset
+        id: upload-release-asset
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: latest
-          prerelease: true
-          allowUpdates: true
-          removeArtifacts: true
-          artifacts: ./artifacts/**/*
+          draft: true
+          tag_name: latest
+          files: ./artifacts/tray_linux/*, ./artifacts/tray_macos/*, ./artifacts/tray_windows/*
