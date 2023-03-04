@@ -60,7 +60,6 @@ jobs:
         with:
           name: tray_linux
           path: ./dist
-          retention-days: 1
 
   build_macos:
     name: Build MacOS Binaries
@@ -78,19 +77,22 @@ jobs:
         env:
           GOOS: darwin
           GOARCH: amd64
-        run: go build -o ./dist/tray-darwin-amd64 -ldflags "-s -w" tray.go
+        run: |
+          go clean
+          go build -o ./dist/tray-darwin-amd64 -ldflags "-s -w" tray.go
       - name: Build arm64
         env:
           CGO_ENABLED: 1
           GOOS: darwin
           GOARCH: arm64
-        run: go build -o ./dist/tray-darwin-arm64 -ldflags "-s -w" tray.go
+        run: |
+          go clean
+          go build -o ./dist/tray-darwin-arm64 -ldflags "-s -w" tray.go
       - name: Upload macos artifact
         uses: actions/upload-artifact@v3
         with:
           name: tray_macos
           path: ./dist
-          retention-days: 1
 
   build_windows:
     name: Build Windows Binaries
@@ -114,7 +116,6 @@ jobs:
         with:
           name: tray_windows
           path: ./dist
-          retention-days: 1
 
   release:
     name: Create Release
