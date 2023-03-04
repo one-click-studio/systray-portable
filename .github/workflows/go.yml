@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:focal
-      
+
     steps:
       - uses: actions/checkout@master
       - name: Install dependencies
@@ -30,8 +30,10 @@ jobs:
           apt install --no-install-recommends -y gcc-aarch64-linux-gnu
       - name: Create dist dir
         run: mkdir dist
-      - name: Setup Go environment
+      - name: Set up Go
         uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
       - name: Build x64
         env:
           GOOS: linux
