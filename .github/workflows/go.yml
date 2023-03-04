@@ -77,17 +77,13 @@ jobs:
         env:
           GOOS: darwin
           GOARCH: amd64
-        run: |
-          go clean
-          go build -o ./dist/tray-darwin-amd64 -ldflags "-s -w" tray.go
+        run: go build -o ./dist/tray-darwin-amd64 -ldflags "-s -w" tray.go
       - name: Build arm64
         env:
           CGO_ENABLED: 1
           GOOS: darwin
           GOARCH: arm64
-        run: |
-          go clean
-          go build -o ./dist/tray-darwin-arm64 -osarch "darwin/arm64" -ldflags "-s -w" tray.go
+        run: arch -arm64 /bin/bash -c "go build -o ./dist/tray-darwin-arm64 -ldflags \"-s -w\" tray.go"
       - name: Upload macos artifact
         uses: actions/upload-artifact@v3
         with:
