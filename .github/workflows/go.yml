@@ -133,3 +133,10 @@ jobs:
           draft: true
           tag_name: latest
           files: ./artifacts/tray_linux/*, ./artifacts/tray_macos/*, ./artifacts/tray_windows/*
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: one-click-studio/node-systray
+          event-type: systray-portable-release
