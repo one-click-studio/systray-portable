@@ -44,7 +44,7 @@ jobs:
           CC: aarch64-linux-gnu-gcc
           CC_FOR_TARGET: gcc-aarch64-linux-gnu
         run: |
-          apt install --no-install-recommends -y libgtk-3-dev:arm64 libappindicator3-dev:arm64
+          apt install --no-install-recommends -y libgtk-3-dev:arm64 libappindicator3-dev:arm64 libpango1.0-dev
           go build -o ./dist/tray-linux-arm64 -ldflags "-s -w" tray.go
           apt remove -y libgtk-3-dev:arm64 libappindicator3-dev:arm64
       - name: Build linux x64
