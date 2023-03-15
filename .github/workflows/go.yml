@@ -26,7 +26,7 @@ jobs:
           deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ bionic-security main universe
           EOF
           dpkg --add-architecture arm64
-          sudo dpkg --configure -a
+          dpkg --configure -a
           apt update
           apt upgrade -y
           apt install -y ca-certificates zip build-essential gcc-7-multilib gcc-aarch64-linux-gnu
