@@ -41,12 +41,13 @@ jobs:
         run: |
           apt install --no-install-recommends -y libgtk-3-dev libappindicator3-dev
           go build -o ./dist/tray-linux-amd64 -ldflags "-s -w" tray.go
-          apt purge -y libgtk-3-dev libappindicator3-dev
-          apt autoremove -y
-          apt update
-          apt check
-          apt -f install -y
-          apt autoclean -y
+
+      - run: apt purge -y libgtk-3-dev libappindicator3-dev
+      - run: apt autoremove -y
+      - run: apt update
+      - run: apt check
+      - run: apt -f install -y
+      - run: apt autoclean -y
 
       - name: Build linux arm64
         env:
