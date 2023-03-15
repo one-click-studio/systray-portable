@@ -41,9 +41,12 @@ jobs:
         run: |
           apt install --no-install-recommends -y libgtk-3-dev libappindicator3-dev
           go build -o ./dist/tray-linux-amd64 -ldflags "-s -w" tray.go
-          apt remove -y libgtk-3-dev libappindicator3-dev
-          apt remove $(apt-cache depends libgtk-3-dev | awk '{ print $2 }' | tr '\n' ' ')
-          apt remove $(apt-cache depends libappindicator3-dev | awk '{ print $2 }' | tr '\n' ' ')
+          apt purge -y libgtk-3-dev libappindicator3-dev
+          apt autoremove
+          apt update
+          apt check
+          apt -f install
+          apt autoclean
 
       - name: Build linux arm64
         env:
