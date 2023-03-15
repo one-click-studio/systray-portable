@@ -27,7 +27,7 @@ jobs:
           EOF
           dpkg --add-architecture arm64
           apt update
-          apt upgrade
+          apt upgrade -y
           apt install -y ca-certificates zip build-essential gcc-7-multilib gcc-aarch64-linux-gnu
       - name: Create dist dir
         run: mkdir dist
