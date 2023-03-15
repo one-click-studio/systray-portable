@@ -114,29 +114,29 @@ jobs:
   #         path: ./dist/*
 
   # release:
-    name: Create Release
-    needs: [build_linux, build_macos, build_windows]
-    runs-on: ubuntu-latest
+  #   name: Create Release
+  #   needs: [build_linux, build_macos, build_windows]
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: ./artifacts
+  #   steps:
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         path: ./artifacts
 
-      - name: Upload executables to asset
-        id: upload-release-asset
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          draft: true
-          tag_name: latest
-          files: ./artifacts/tray_linux/*, ./artifacts/tray_macos/*, ./artifacts/tray_windows/*
+  #     - name: Upload executables to asset
+  #       id: upload-release-asset
+  #       uses: softprops/action-gh-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  #       with:
+  #         draft: true
+  #         tag_name: latest
+  #         files: ./artifacts/tray_linux/*, ./artifacts/tray_macos/*, ./artifacts/tray_windows/*
 
-      - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          repository: one-click-studio/node-systray
-          event-type: systray-portable-release
+  #     - name: Repository Dispatch
+  #       uses: peter-evans/repository-dispatch@v2
+  #       with:
+  #         token: ${{ secrets.GH_TOKEN }}
+  #         repository: one-click-studio/node-systray
+  #         event-type: systray-portable-release
